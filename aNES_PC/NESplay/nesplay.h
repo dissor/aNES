@@ -1,0 +1,17 @@
+#ifndef __NESPLAY_H
+#define __NESPLAY_H
+#include "app.h"
+//////////////////////////////////////////////////////////////////////////////////
+//我的 STM32开发板
+// APP-NES模拟器 代码
+//修改日期:2012/10/3
+//版本：V1.0
+//////////////////////////////////////////////////////////////////////////////////
+
+// extern u8 nesruning ;	//退出NES的标志
+// extern u8 frame_cnt;	//统计帧数
+
+void nes_clock_set(u8 PLL);
+void load_nes(u8 *path);
+u8 nes_play(void);
+#endif
