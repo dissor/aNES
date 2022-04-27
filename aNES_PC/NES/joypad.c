@@ -1,6 +1,6 @@
 #include "nes_main.h"
 #include "joypad.h"
-#include "usart.h" //	串口
+#include "usart.h" // 串口
 #include "key.h"
 //////////////////////////////////////////////////////////////////////////////////
 //我的 STM32开发板
@@ -12,7 +12,7 @@
 u8 JOY_key = 0xFF;
 JoyPadType JoyPad[2];
 
-u8 NES_GetJoyPadVlaue(int JoyPadNum) //	 得到手柄脉冲
+u8 NES_GetJoyPadVlaue(int JoyPadNum) //  得到手柄脉冲
 {
     u8 retval = 0;
     if (JoyPadNum == 0)
@@ -20,7 +20,7 @@ u8 NES_GetJoyPadVlaue(int JoyPadNum) //	 得到手柄脉冲
         retval = (JOY_key >> JoyPad[0].index) & 0X01;
         if (JoyPad[0].index == 20)
             retval = 1; // 20位表示控制器在位.
-        //	printf("\r\n 按键: %d",retval);	 //我写的代码 测试用
+        // printf("\r\n 按键: %d",re val);  //我写的代码 测试用
         JoyPad[0].index++;
     }
     return retval;
@@ -45,8 +45,8 @@ void NES_JoyPadReset(void)
     JoyPad[0].index = 0;
     // JOY_key=0xFF-((右  <<7)|(左  <<6)|(下  <<5)|(上  <<4)|Start<<3)|Select<<2)|(B  <<1)|A   );
     JOY_key = 0xFF - ((KEY5 << 7) | (KEY3 << 6) | (0X01 << 5) | (0X01 << 4) | (KEY1 << 3) | (KEY2 << 2) | (0X01 << 1) | KEY4);
-    //	JOYPAD_LAT=1;//   锁存一下
-    // 	JOYPAD_LAT=0;
+    // JOYPAD_LAT=1;//   锁存一下
+    //  JOYPAD_LAT=0;
 
     JoyPad[1].state = 1;
     JoyPad[1].index = 0;

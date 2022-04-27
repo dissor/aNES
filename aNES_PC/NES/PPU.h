@@ -25,17 +25,17 @@ typedef struct
 {
     uint16_t PPU_addrcnt;       // PPU地址计数器高八位，第一次写入， PPU地址计数器低八位，第一次写入*/
     uint8_t PPU_readtemp;       //读取操作缓冲
-                           // PPU 内存映像 64KB寻址 16KB($0000 ~ &3FFF)物理内存,后面的为镜像
+                                // PPU 内存映像 64KB寻址 16KB($0000 ~ &3FFF)物理内存,后面的为镜像
     uint8_t *patterntable0;     //$0000 ~ $0FFF 图案表0
     uint8_t *patterntable1;     //$1000 ~ $1FFF 图案表1
     uint8_t *name_table[4];     //$2000 ~ $23BF 命名表0（32x30块）
-                           //$23C0 ~ $23FF 属性表0）
-                           //$2400 ~ $27BF 命名表1（32x30块）
-                           //$27C0 ~ $27FF 属性表1
-                           //$2800 ~ $2BBF 命名表2（32x30块）
-                           //$2BC0 ~ $2BFF 属性表2（）
-                           //$2C00 ~ $2FBF 命名表3（32x30块））
-                           //$2FC0 ~ $2FFF 属性表3
+                                //$23C0 ~ $23FF 属性表0）
+                                //$2400 ~ $27BF 命名表1（32x30块）
+                                //$27C0 ~ $27FF 属性表1
+                                //$2800 ~ $2BBF 命名表2（32x30块）
+                                //$2BC0 ~ $2BFF 属性表2（）
+                                //$2C00 ~ $2FBF 命名表3（32x30块））
+                                //$2FC0 ~ $2FFF 属性表3
     uint8_t image_palette[16];  //$3F00 ~ $3F0F 背景调色板#1，颜色索引,使用颜色值（RG565）
     uint8_t sprite_palette[16]; //$3F00 ~ $3F0F 精灵调色板#1，颜色索引,使用颜色值（RG565）
 } PPU_MemType;
@@ -46,11 +46,11 @@ typedef struct
     uint8_t NES_R0; //$2000
     uint8_t NES_R1; //$2001
     uint8_t NES_R2; //$2002
-               //	uint8_t NES_R3;	 //$2003
-               //	uint8_t NES_R4;	 //$2004
+                    // uint8_t NES_R3;  //$2003
+                    // uint8_t NES_R4;  //$2004
     uint8_t NES_R5; //$2005
-               //	uint8_t NES_R6;	 //$2006
-               //	uint8_t NES_R7;	 //$2007
+                    // uint8_t NES_R6;  //$2006
+                    // uint8_t NES_R7;  //$2007
 } PPU_RegType;
 
 // PPU  标志

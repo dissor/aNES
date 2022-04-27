@@ -3,7 +3,6 @@
 // #include "malloc.h"
 // #include "key.h"
 
-
 // uint8_t nesruning = 0; //初始化为真
 // uint8_t frame_cnt;     //统计帧数
 // // uint8_t  *rom_file;          //NES游戏rom的存储地址
@@ -48,7 +47,7 @@
 //                 if (SpriteHitFlag == FALSE)
 //                     NES_GetSpr0HitFlag(PPU_scanline - SCAN_LINE_DISPALY_START_NUM); //查找Sprite #0 碰撞标志
 //             }
-//             if ((frame_cnt % 3) == 0) //每3帧显示一次	   //耗时大户
+//             if ((frame_cnt % 3) == 0) //每3帧显示一次    //耗时大户
 //             {
 //                 NES_RenderLine(PPU_scanline - SCAN_LINE_DISPALY_START_NUM); //水平同步与显示一行
 //             }
@@ -65,7 +64,7 @@
 //         // A mapper function in V-Sync 存储器切换垂直VBANK同步
 //         // MapperVSync();
 //         //读取控制器JoyPad状态,更新JoyPad控制器值*/
-//         // NES_JoyPadUpdateValue();	 //systick 中断读取按键值
+//         // NES_JoyPadUpdateValue();  //systick 中断读取按键值
 
 //         //单独的返回键（KEY6）扫描程序
 //         if (KEY_Scan_f())
@@ -74,7 +73,7 @@
 // }
 
 //返回值:0,执行OK;
-//	  其他,错误代码
+//   其他,错误代码
 uint8_t nes_main(char *rom_file)
 {
     uint16_t offset = 0;
@@ -147,7 +146,6 @@ uint8_t nes_main(char *rom_file)
     nes_mem_delete(); //释放内存
     return res;
 }
-
 
 //开辟nes运行所需的RAM.
 //返回值:0,成功;

@@ -5,7 +5,7 @@
 #define JOYPAD_0 0
 #define JOYPAD_1 1
 
-extern u8 JOY_key; //	保存键值
+extern u8 JOY_key; // 保存键值
 
 typedef struct
 {

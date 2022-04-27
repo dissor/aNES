@@ -23,7 +23,7 @@ typedef struct
                           //   D4－D7：ROM Mapper的�4�
     uint8_t rommappernum; // D0－D3：保留，必须是0（准备作为副Mapper号^_^）
                           // D4－D7：ROM Mapper的高4位
-                          // uint8_t reserve[8];	// 保留，必须是0
+                          // uint8_t reserve[8]; // 保留，必须是0
                           // OM段升序排列，如果存在trainer，它的512字节摆在ROM段之前
                           // VROM段, 升序排列
 } NesHeader;
@@ -39,7 +39,7 @@ uint8_t nes_main(char *rom_file);
 // // CPU使用
 // extern uint8_t *ram6502; // RAM  2K字节,由malloc申请
 
-uint8_t nes_mem_creat(void);    //开辟nes运行所需的RAM.
-void nes_mem_delete(void); //删除nes运行时申请的RAM
+uint8_t nes_mem_creat(void); //开辟nes运行所需的RAM.
+void nes_mem_delete(void);   //删除nes运行时申请的RAM
 
 #endif
