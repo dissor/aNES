@@ -1,14 +1,16 @@
 #include "nes_main.h"
+#include "cpu6502.h"
+#include "PPU.h"
+#include "joypad.h"
 
-// #include "malloc.h"
 // #include "key.h"
 
-// uint8_t nesruning = 0; //初始化为真
-// uint8_t frame_cnt;     //统计帧数
+uint8_t nesruning = 0; //初始化为真
+uint8_t frame_cnt;     //统计帧数
 // // uint8_t  *rom_file;          //NES游戏rom的存储地址
 // // NES 帧周期循环
-// void NesFrameCycle(void)
-// {
+void NesFrameCycle(void)
+{
 //     int clocks; // CPU执行时间
 //     //启动模拟器循环，检查VROM设置，若卡带为0，初始化VROM
 //     // if ( NesHeader.byVRomSize == 0)
@@ -70,7 +72,7 @@
 //         if (KEY_Scan_f())
 //             break; //退出 //退出模拟器
 //     }
-// }
+}
 
 //返回值:0,执行OK;
 //   其他,错误代码
@@ -133,15 +135,15 @@ uint8_t nes_main(char *rom_file)
     res = nes_mem_creat(); //申请内存
     if (res == 0)          //申请成功了.则运行游戏
     {
-        // //初始化nes 模拟器
-        // init6502mem(0,                                                                                               // exp_rom
-        //             0,                                                                                               // sram 由卡类型决定, 暂不支持
-        //             ((uint8_t *)&rom_file[offset + 0x10]),                                                                // prg_rombank, 存储器大小 由卡类型决定
-        //             neshreader->romnum);                                                                             //初始化6502存储器镜像
-        // reset6502();                                                                                                 //复位
-        // PPU_Init(((uint8_t *)&rom_file[offset + 0x10] + (neshreader->romnum * 0x4000)), (neshreader->romfeature & 0x01)); // PPU_初始化
-        // NES_JoyPadInit();
-        // NesFrameCycle(); //模拟器循环执行
+        //初始化nes 模拟器
+        init6502mem(0,                                     // exp_rom
+                    0,                                     // sram 由卡类型决定, 暂不支持
+                    ((uint8_t *)&rom_file[offset + 0x10]), // prg_rombank, 存储器大小 由卡类型决定
+                    neshreader->romnum);                   //初始化6502存储器镜像
+        reset6502();                                       //复位
+        PPU_Init(((uint8_t *)&rom_file[offset + 0x10] + (neshreader->romnum * 0x4000)), (neshreader->romfeature & 0x01)); // PPU_初始化
+        NES_JoyPadInit();
+        NesFrameCycle(); //模拟器循环执行
     }
     nes_mem_delete(); //释放内存
     return res;

@@ -1,7 +1,7 @@
 #ifndef _CPU6502_H_
 #define _CPU6502_H_
 
-#include "PPU.h"
+#include "nes_main.h"
 
 // Address mask. Atari Asteroids/Deluxe use 0x7fff -
 // but use 0xffff for full 16 bit decode

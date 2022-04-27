@@ -1,6 +1,8 @@
 #ifndef _MAPPER002_H_
 #define _MAPPER002_H_
 
+#include "nes_main.h"
+
 void Mapper002_Reset()
 {
     SetPROM_32K_Bank2(0, 1, PROM_8K_SIZE - 2, PROM_8K_SIZE - 1);

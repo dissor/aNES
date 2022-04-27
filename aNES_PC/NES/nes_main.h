@@ -5,7 +5,6 @@
 // #include "sys.h"
 // #include <stdio.h>
 // #include <string.h>
-#include "cpu6502.h"
 // #include "PPU.h"
 // #include "joypad.h"
 // #include "nes_rom.h"
@@ -30,7 +29,7 @@ typedef struct
 
 uint8_t nes_main(char *rom_file);
 
-// void NesFrameCycle(void);
+void NesFrameCycle(void);
 // void NES_ReadJoyPad(u8 JoyPadNum);
 
 // // PPU使用

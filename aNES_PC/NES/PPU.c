@@ -1,4 +1,5 @@
 #include "nes_main.h"
+#include "PPU.h"
 // #include "lcd.h"
 
 //变量声明
@@ -97,9 +98,9 @@ void PPU_Init(uint8_t *patterntableptr, // Pattern table 地址
               uint8_t ScreenMirrorType  //屏幕镜像类型
 )
 {
-    gui_memset(&PPU_Mem, 0, sizeof(PPU_Mem)); //清零存储器
-    gui_memset(&Spr_Mem, 0, sizeof(Spr_Mem));
-    gui_memset(&PPU_Reg, 0, sizeof(PPU_Reg));
+    memset(&PPU_Mem, 0, sizeof(PPU_Mem)); //清零存储器
+    memset(&Spr_Mem, 0, sizeof(Spr_Mem));
+    memset(&PPU_Reg, 0, sizeof(PPU_Reg));
 
     PPU_Mem.patterntable0 = patterntableptr;
     PPU_Mem.patterntable1 = patterntableptr + 0x1000;
@@ -118,7 +119,7 @@ void PPU_Init(uint8_t *patterntableptr, // Pattern table 地址
         PPU_Mem.name_table[2] = &NameTable[0];
         PPU_Mem.name_table[3] = &NameTable[1024];
     }
-    SpriteHitFlag = PPU_Latch_Flag = FALSE;
+    SpriteHitFlag = PPU_Latch_Flag = false;
     // PPU_BG_VScrlOrg = PPU_BG_VScrlOrg_Pre = 0;
     // PPU_BG_HScrlOrg = PPU_BG_HScrlOrg_Pre = 0;
     PPU_BG_VScrlOrg = 0;
@@ -304,11 +305,11 @@ void PPU_RegWrite(uint16_t RX, uint8_t value)
         ///* Low */
         // PPU_AddrTemp = ( PPU_AddrTemp & 0xFF00 ) | (((u16)value ) & 0x00FF);
         // PPU_Mem.PPU_addrcnt = PPU_AddrTemp;
-        // PPU_BG_VScrlOrg = (u8)(PPU_Mem.PPU_addrcnt & 0x001F );
-        // PPU_BG_HScrlOrg = (u8)((PPU_Mem.PPU_addrcnt& 0x03E0 ) >> 5 );
+        // PPU_BG_VScrlOrg = (uint8_t)(PPU_Mem.PPU_addrcnt & 0x001F );
+        // PPU_BG_HScrlOrg = (uint8_t)((PPU_Mem.PPU_addrcnt& 0x03E0 ) >> 5 );
         // }else{       //0
         ///* High */
-        // PPU_AddrTemp = (PPU_AddrTemp & 0x00FF)|((((u8)value) & 0x003F ) << 8 );
+        // PPU_AddrTemp = (PPU_AddrTemp & 0x00FF)|((((uint8_t)value) & 0x003F ) << 8 );
         //}
         // PPU_Latch_Flag ^= 1;
         PPU_Mem.PPU_addrcnt = (PPU_Mem.PPU_addrcnt << 8) + value; // PPU 存储器地址计数器，先写高8位，后写低8位
@@ -381,7 +382,7 @@ void NES_GetSpr0HitFlag(int y_axes)
 
     //判断sprite #0 显示区域是否在当前行
     spr_size = PPU_Reg.NES_R0 & R0_SPR_SIZE ? 0x0F : 0x07; // spr_size 8：0~7，16: 0~15
-    dy_axes = y_axes - (u8)(sprite[0].y + 1);              //判断sprite#0 是否在当前行显示范围内,0坐标实际值为FF
+    dy_axes = y_axes - (uint8_t)(sprite[0].y + 1);         //判断sprite#0 是否在当前行显示范围内,0坐标实际值为FF
     if (dy_axes != (dy_axes & spr_size))
         return;
     //取得sprite显示位置的背景显示数据
@@ -440,7 +441,7 @@ void NES_GetSpr0HitFlag(int y_axes)
     if (Spr0_Data & BG_Data)
     {
         // printf("\r\nSprite #0 Hit!");
-        SpriteHitFlag = TRUE;
+        SpriteHitFlag = true;
     }
 }
 
@@ -568,7 +569,7 @@ void NES_RenderSprite88(SpriteType *sprptr, int dy_axes)
     uint8_t *Spr_Patterntable;
     //取得所在title Pattern首地址
     Spr_Patterntable = (PPU_Reg.NES_R0 & SPR_PATTERN_ADDR) ? PPU_Mem.patterntable1 : PPU_Mem.patterntable0;
-    NES_RenderSprPattern(sprptr, Spr_Patterntable, sprptr->t_num << 4, (u8)dy_axes);
+    NES_RenderSprPattern(sprptr, Spr_Patterntable, sprptr->t_num << 4, (uint8_t)dy_axes);
 }
 
 // sprite 8*16 显示数据扫描
@@ -576,17 +577,17 @@ void NES_RenderSprite16(SpriteType *sprptr, int dy_axes)
 {
     if (sprptr->t_num & 0x01)
     {
-        if (dy_axes < 8)                                                                                   // sprite  title 奇数号
-            NES_RenderSprPattern(sprptr, PPU_Mem.patterntable1, (sprptr->t_num & 0xFE) << 4, (u8)dy_axes); //上8*8
+        if (dy_axes < 8)                                                                                        // sprite  title 奇数号
+            NES_RenderSprPattern(sprptr, PPU_Mem.patterntable1, (sprptr->t_num & 0xFE) << 4, (uint8_t)dy_axes); //上8*8
         else
-            NES_RenderSprPattern(sprptr, PPU_Mem.patterntable1, sprptr->t_num << 4, (u8)dy_axes & 7); //下8*8
+            NES_RenderSprPattern(sprptr, PPU_Mem.patterntable1, sprptr->t_num << 4, (uint8_t)dy_axes & 7); //下8*8
     }
     else
     {
-        if (dy_axes < 8)                                                                          // sprite  title 偶数号
-            NES_RenderSprPattern(sprptr, PPU_Mem.patterntable0, sprptr->t_num << 4, (u8)dy_axes); //上8*8
+        if (dy_axes < 8)                                                                               // sprite  title 偶数号
+            NES_RenderSprPattern(sprptr, PPU_Mem.patterntable0, sprptr->t_num << 4, (uint8_t)dy_axes); //上8*8
         else
-            NES_RenderSprPattern(sprptr, PPU_Mem.patterntable0, (sprptr->t_num | 1) << 4, (u8)dy_axes & 7); //下8*8
+            NES_RenderSprPattern(sprptr, PPU_Mem.patterntable0, (sprptr->t_num | 1) << 4, (uint8_t)dy_axes & 7); //下8*8
     }
 }
 
@@ -618,7 +619,7 @@ void NES_RenderLine(int y_axes)
                 if (!(sprite[i].attr & SPR_BG_PRIO))
                     continue; //(0=Sprite In front of BG, 1=Sprite Behind BG)
                 //判断显示位置
-                dy_axes = y_axes - (u8)(sprite[i].y + 1); //判断sprite是否在当前行显示范围内,sprite y (FF,00,01,...EE)(0~239)
+                dy_axes = y_axes - (uint8_t)(sprite[i].y + 1); //判断sprite是否在当前行显示范围内,sprite y (FF,00,01,...EE)(0~239)
                 if (dy_axes != (dy_axes & spr_size))
                     continue; //若不在则返回继续循环查找下一个
                 //若存在sprite在当前显示行,则转入下面显示阶段
@@ -668,7 +669,10 @@ void NES_RenderLine(int y_axes)
     }
     else
         for (i = 8; i < 264; i++)
-            Buffer_scanline[i] = BLACK; //清空显示缓存,黑屏
+        {
+            // Buffer_scanline[i] = BLACK; //清空显示缓存,黑屏
+        }
+
     //原始数据  8  264
     //完成扫描，将行显示缓存写入LCD*/
     NES_LCD_DisplayLine(y_axes, Buffer_scanline); //启动LCD显示一行，查询或DMA传送
@@ -678,14 +682,14 @@ void NES_RenderLine(int y_axes)
 // NES游戏的分辨率为256*240.  但因为 NTSC 所以分辨率剩下 256x224。
 void NES_LCD_DisplayLine(int y_axes, uint16_t *Disaplyline_buffer)
 {
-    uint16_t index;
-    // LCD_SetCursor(0,y_axes+30+20);//偏移到中间   //设置光标位置
-    LCD_SetCursor(32, y_axes); //偏移到中间   //设置光标位置
-    LCD_WriteRAM_Prepare();
-    for (index = 8; index < 264; index++)
-    //原始数据16  256
-    {
-        // LCD->LCD_RAM = Buffer_scanline[index];
-        LCD_WR_DATA(Buffer_scanline[index]);
-    }
+    // uint16_t index;
+    // // LCD_SetCursor(0,y_axes+30+20);//偏移到中间   //设置光标位置
+    // LCD_SetCursor(32, y_axes); //偏移到中间   //设置光标位置
+    // LCD_WriteRAM_Prepare();
+    // for (index = 8; index < 264; index++)
+    // //原始数据16  256
+    // {
+    //     // LCD->LCD_RAM = Buffer_scanline[index];
+    //     LCD_WR_DATA(Buffer_scanline[index]);
+    // }
 }

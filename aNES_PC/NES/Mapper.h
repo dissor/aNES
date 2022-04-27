@@ -1,6 +1,7 @@
 #ifndef _MAPPER_H_
 #define _MAPPER_H_
-#include "mytype.h"
+// #include "mytype.h"
+#include "nes_main.h"
 
 typedef struct
 {
@@ -17,7 +18,7 @@ typedef struct
 extern MAPPER NES_Mapper;
 
 void Mapper_Init(void);
-BOOL CreateMapper(int no);
+bool CreateMapper(int no);
 extern void Mapper_Reset(void);
 void Mapper_Write(uint16_t addr, uint8_t data);
 void Mapper_Read(uint16_t addr, uint8_t data);

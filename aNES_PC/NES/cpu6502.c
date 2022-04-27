@@ -1,4 +1,6 @@
-#include "nes_main.h"
+#include "cpu6502.h"
+#include "PPU.h"
+#include "joypad.h"
 
 // 6502标志位 flags = NVRBDIZC
 #define C_FLAG 0x01 // 1: Carry
@@ -460,7 +462,9 @@ void put6502memory(uint16_t addr, uint8_t value)
                 NES_JoyPadReset();
             }
             else
+            {
                 NES_JoyPadDisable();
+            }
         }
         //其他位暂未使用
         // if(addr == 0x4017)NES_SetJoyPad(value);

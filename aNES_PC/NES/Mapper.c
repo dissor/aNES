@@ -1,6 +1,6 @@
 #include "Mapper.h"
-#include "Waves'NES.h"
-#include "Mapper000.h"
+// #include "Waves'NES.h"
+// #include "Mapper000.h"
 #include "Mapper002.h"
 
 MAPPER NES_Mapper;
@@ -16,7 +16,7 @@ void Mapper_Init(void)
     NES_Mapper.ExCmdRead = Mapper_ExCmdRead;
 }
 
-BOOL CreateMapper(int no)
+bool CreateMapper(int no)
 {
     Mapper_Init();
     switch (no)
@@ -30,7 +30,7 @@ BOOL CreateMapper(int no)
     default:
         break;
     }
-    return TRUE;
+    return true;
 }
 
 void Mapper_Reset(void) {}
