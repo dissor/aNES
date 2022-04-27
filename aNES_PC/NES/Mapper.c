@@ -35,31 +35,31 @@ BOOL CreateMapper(int no)
 
 void Mapper_Reset(void) {}
 
-BYTE Mapper_ReadLow(WORD addr)
+uint8_t Mapper_ReadLow(uint16_t addr)
 {
     if (addr >= 0x6000 && addr <= 0x7FFF)
         return CPU_MEM_BANK[addr >> 13][addr & 0x1FFF];
-    return (BYTE)(addr >> 8);
+    return (uint8_t)(addr >> 8);
 }
 
-void Mapper_WriteLow(WORD addr, BYTE data)
+void Mapper_WriteLow(uint16_t addr, uint8_t data)
 {
     if (addr >= 0x6000 && addr <= 0x7FFF)
         CPU_MEM_BANK[addr >> 13][addr & 0x1FFF] = data;
 }
 
-void Mapper_Write(WORD addr, BYTE data) {}
+void Mapper_Write(uint16_t addr, uint8_t data) {}
 
-void Mapper_Read(WORD addr, BYTE data) {}
+void Mapper_Read(uint16_t addr, uint8_t data) {}
 
-BYTE Mapper_ExRead(WORD addr)
+uint8_t Mapper_ExRead(uint16_t addr)
 {
     return 0x00;
 }
 
-void Mapper_ExWrite(WORD addr, BYTE data) {}
+void Mapper_ExWrite(uint16_t addr, uint8_t data) {}
 
-BYTE Mapper_ExCmdRead()
+uint8_t Mapper_ExCmdRead()
 {
     return 0x00;
 }

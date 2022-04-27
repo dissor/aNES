@@ -1,48 +1,45 @@
 #ifndef _NES_MAIN_H_
 #define _NES_MAIN_H_
-#include "sys.h"
-#include <stdio.h>
-#include <string.h>
-#include "6502.h"
-#include "PPU.h"
-#include "joypad.h"
-#include "nes_rom.h"
-#include "gui.h"
-//////////////////////////////////////////////////////////////////////////////////
-//ÎÒµÄ STM32¿ª·¢°å
-// NESÄ£ÄâÆ÷ ´úÂë
-//ĞŞ¸ÄÈÕÆÚ:2012/10/3
-//°æ±¾£ºV1.0
-//////////////////////////////////////////////////////////////////////////////////
+
+#include "main.h"
+// #include "sys.h"
+// #include <stdio.h>
+// #include <string.h>
+#include "cpu6502.h"
+// #include "PPU.h"
+// #include "joypad.h"
+// #include "nes_rom.h"
+// #include "gui.h"
 
 typedef struct
 {
-    char filetype[4]; //×Ö·û´®¡°NES^Z¡±ÓÃÀ´Ê¶±ğ.NESÎÄ¼ş
-    u8 romnum;        // 16kB ROMµÄÊıÄ¿
-    u8 vromnum;       // 8kB VROMµÄÊıÄ¿
-    u8 romfeature;    // D0£º1£½´¹Ö±¾µÏñ£¬0£½Ë®Æ½¾µÏñ
-                      //  D1£º1£½ÓĞµç³Ø¼ÇÒä£¬SRAMµØÖ·$6000-$7FFF
-                      //  D2£º1£½ÔÚ$7000-$71FFÓĞÒ»¸ö512×Ö½ÚµÄtrainer
-                      //  D3£º1£½4ÆÁÄ»VRAM²¼¾Ö
-                      //   D4£­D7£ºROM MapperµÄÍ4»
-    u8 rommappernum;  // D0£­D3£º±£Áô£¬±ØĞëÊÇ0£¨×¼±¸×÷Îª¸±MapperºÅ^_^£©
-                      // D4£­D7£ºROM MapperµÄ¸ß4Î»
-                      // u8 reserve[8];	// ±£Áô£¬±ØĞëÊÇ0
-                      // OM¶ÎÉıĞòÅÅÁĞ£¬Èç¹û´æÔÚtrainer£¬ËüµÄ512×Ö½Ú°ÚÔÚROM¶ÎÖ®Ç°
-                      // VROM¶Î, ÉıĞòÅÅÁĞ
+    char filetype[4];     //å­—ç¬¦ä¸²â€œNES^Zâ€ç”¨æ¥è¯†åˆ«.NESæ–‡ä»¶
+    uint8_t romnum;       // 16kB ROMçš„æ•°ç›®
+    uint8_t vromnum;      // 8kB VROMçš„æ•°ç›®
+    uint8_t romfeature;   // D0ï¼š1ï¼å‚ç›´é•œåƒï¼Œ0ï¼æ°´å¹³é•œåƒ
+                          //  D1ï¼š1ï¼æœ‰ç”µæ± è®°å¿†ï¼ŒSRAMåœ°å€$6000-$7FFF
+                          //  D2ï¼š1ï¼åœ¨$7000-$71FFæœ‰ä¸€ä¸ª512å­—èŠ‚çš„trainer
+                          //  D3ï¼š1ï¼4å±å¹•VRAMå¸ƒå±€
+                          //   D4ï¼D7ï¼šROM Mapperçš„ï¿½4ï¿½
+    uint8_t rommappernum; // D0ï¼D3ï¼šä¿ç•™ï¼Œå¿…é¡»æ˜¯0ï¼ˆå‡†å¤‡ä½œä¸ºå‰¯Mapperå·^_^ï¼‰
+                          // D4ï¼D7ï¼šROM Mapperçš„é«˜4ä½
+                          // uint8_t reserve[8];	// ä¿ç•™ï¼Œå¿…é¡»æ˜¯0
+                          // OMæ®µå‡åºæ’åˆ—ï¼Œå¦‚æœå­˜åœ¨trainerï¼Œå®ƒçš„512å­—èŠ‚æ‘†åœ¨ROMæ®µä¹‹å‰
+                          // VROMæ®µ, å‡åºæ’åˆ—
 } NesHeader;
 
-u8 nes_main(void);
-void NesFrameCycle(void);
-void NES_ReadJoyPad(u8 JoyPadNum);
+uint8_t nes_main(char *rom_file);
 
-// PPUÊ¹ÓÃ
-extern u8 *NameTable;        // 2KµÄ±äÁ¿
-extern u16 *Buffer_scanline; //ĞĞÏÔÊ¾»º´æ,ÉÏÏÂ±êÔ½½ç×î´óÎª7£¬ÏÔÊ¾Çø 7 ~ 263  0~7 263~270 Îª·ÀÖ¹Òç³öÇø
-// CPUÊ¹ÓÃ
-extern u8 *ram6502; // RAM  2K×Ö½Ú,ÓÉmallocÉêÇë
+// void NesFrameCycle(void);
+// void NES_ReadJoyPad(u8 JoyPadNum);
 
-u8 nes_mem_creat(void);    //¿ª±ÙnesÔËĞĞËùĞèµÄRAM.
-void nes_mem_delete(void); //É¾³ınesÔËĞĞÊ±ÉêÇëµÄRAM
+// // PPUä½¿ç”¨
+// extern uint8_t *NameTable;        // 2Kçš„å˜é‡
+// extern u16 *Buffer_scanline; //è¡Œæ˜¾ç¤ºç¼“å­˜,ä¸Šä¸‹æ ‡è¶Šç•Œæœ€å¤§ä¸º7ï¼Œæ˜¾ç¤ºåŒº 7 ~ 263  0~7 263~270 ä¸ºé˜²æ­¢æº¢å‡ºåŒº
+// // CPUä½¿ç”¨
+// extern uint8_t *ram6502; // RAM  2Kå­—èŠ‚,ç”±mallocç”³è¯·
+
+uint8_t nes_mem_creat(void);    //å¼€è¾Ÿnesè¿è¡Œæ‰€éœ€çš„RAM.
+void nes_mem_delete(void); //åˆ é™¤nesè¿è¡Œæ—¶ç”³è¯·çš„RAM
 
 #endif

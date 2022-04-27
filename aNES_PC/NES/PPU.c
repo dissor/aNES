@@ -1,15 +1,9 @@
 #include "nes_main.h"
-#include "lcd.h"
-//////////////////////////////////////////////////////////////////////////////////
-//我的 STM32开发板
-// NES模拟器 代码
-//修改日期:2012/10/3
-//版本：V1.0
-//////////////////////////////////////////////////////////////////////////////////
+// #include "lcd.h"
 
 //变量声明
 //存储器相关
-u8 *NameTable; // 2K的变量
+uint8_t *NameTable; // 2K的变量
 
 PPU_RegType PPU_Reg;
 PPU_MemType PPU_Mem;
@@ -17,17 +11,17 @@ Spr_MemType Spr_Mem;
 SpriteType *sprite = (SpriteType *)&Spr_Mem.spr_ram[0]; //指向第一个sprite 0 的位置
 
 // 显示相关
-u8 SpriteHitFlag, PPU_Latch_Flag; // sprite #0 显示碰撞点所在扫描行号, 背景位移￥2005写入标志
+uint8_t SpriteHitFlag, PPU_Latch_Flag; // sprite #0 显示碰撞点所在扫描行号, 背景位移￥2005写入标志
 int PPU_scanline;                 //当前扫描行
-u16 *Buffer_scanline;             //[8 + 256 + 8];	//行显示缓存,上下标越界最大为7，显示区 7 ~ 263  0~7 263~270 为防止溢出区
+uint16_t *Buffer_scanline;             //[8 + 256 + 8];	//行显示缓存,上下标越界最大为7，显示区 7 ~ 263  0~7 263~270 为防止溢出区
 
-u8 PPU_BG_VScrlOrg, PPU_BG_HScrlOrg;
-// u8 PPU_BG_VScrlOrg_Pre, PPU_BG_HScrlOrg_Pre;
-// u8 PPU_BG_NameTableNum;						//当前背景命名表号
-// u16 PPU_AddrTemp;
+uint8_t PPU_BG_VScrlOrg, PPU_BG_HScrlOrg;
+// uint8_t PPU_BG_VScrlOrg_Pre, PPU_BG_HScrlOrg_Pre;
+// uint8_t PPU_BG_NameTableNum;						//当前背景命名表号
+// uint16_t PPU_AddrTemp;
 
 // NES 调色板 颜色表（RGB565）
-const u16 NES_Color_Palette[64] =
+const uint16_t NES_Color_Palette[64] =
     {
         //颜色索引地址->RGB值 -> RGB565(16bit)
         /*	0x00 -> 0x75, 0x75, 0x75 */ 0x73AE,
@@ -99,8 +93,8 @@ const u16 NES_Color_Palette[64] =
         /*	0x3F -> 0x00, 0x00, 0x00 */ 0x0000};
 
 // PPU 初始化
-void PPU_Init(u8 *patterntableptr, // Pattern table 地址
-              u8 ScreenMirrorType  //屏幕镜像类型
+void PPU_Init(uint8_t *patterntableptr, // Pattern table 地址
+              uint8_t ScreenMirrorType  //屏幕镜像类型
 )
 {
     gui_memset(&PPU_Mem, 0, sizeof(PPU_Mem)); //清零存储器
@@ -139,9 +133,9 @@ void PPU_Init(u8 *patterntableptr, // Pattern table 地址
 ///////////////////////////////////////////////////////////////////////////////////
 
 //读PPU name table 数据
-u8 PPU_NameTablesRead(void)
+uint8_t PPU_NameTablesRead(void)
 {
-    u16 addrtemp = PPU_Mem.PPU_addrcnt & 0xFFF;
+    uint16_t addrtemp = PPU_Mem.PPU_addrcnt & 0xFFF;
     if (addrtemp > 0xC00)
         return PPU_Mem.name_table[3][addrtemp - 0xC00]; // nametable3
     if (addrtemp > 0x800)
@@ -153,9 +147,9 @@ u8 PPU_NameTablesRead(void)
 }
 
 //写PPU name table 数据
-void PPU_NameTablesWrite(u8 value)
+void PPU_NameTablesWrite(uint8_t value)
 {
-    u16 addrtemp = PPU_Mem.PPU_addrcnt & 0xFFF;
+    uint16_t addrtemp = PPU_Mem.PPU_addrcnt & 0xFFF;
     if (addrtemp > 0xC00)
     {
         PPU_Mem.name_table[3][addrtemp - 0xC00] = value; // nametable3
@@ -179,7 +173,7 @@ void PPU_NameTablesWrite(u8 value)
 }
 
 //写PPU存储器
-void PPU_MemWrite(u8 value)
+void PPU_MemWrite(uint8_t value)
 {
     switch (PPU_Mem.PPU_addrcnt & 0xF000)
     {
@@ -220,10 +214,10 @@ void PPU_MemWrite(u8 value)
 }
 
 //读PPU存储器
-u8 PPU_MemRead(void)
+uint8_t PPU_MemRead(void)
 {
     //由于硬件原因，NES PPU每次读取返回的是缓冲值，为时机读取地址减1；
-    u8 temp;
+    uint8_t temp;
     temp = PPU_Mem.PPU_readtemp; //保存缓冲值，作为返回值
     switch (PPU_Mem.PPU_addrcnt & 0xF000)
     {
@@ -262,7 +256,7 @@ u8 PPU_MemRead(void)
 }
 
 //写PPU寄存器
-void PPU_RegWrite(u16 RX, u8 value)
+void PPU_RegWrite(uint16_t RX, uint8_t value)
 {
     switch (RX)
     {
@@ -331,9 +325,9 @@ void PPU_RegWrite(u16 RX, u8 value)
 }
 
 //读PPU寄存器
-u8 PPU_RegRead(u16 RX)
+uint8_t PPU_RegRead(uint16_t RX)
 {
-    u8 temp;
+    uint8_t temp;
     switch (RX)
     {
     case 0:
@@ -377,13 +371,13 @@ u8 PPU_RegRead(u16 RX)
 void NES_GetSpr0HitFlag(int y_axes)
 {
     int i, y_scroll, dy_axes, dx_axes;
-    u8 y_TitleLine, x_TitleLine;
-    u8 spr_size, Spr0_Data, temp;
-    u8 nNameTable, BG_TitlePatNum;
-    u8 BG_Data0, BG_Data1, BG_Data;
-    u16 title_addr;
-    u8 *BG_Patterntable;
-    u8 *Spr_Patterntable;
+    uint8_t y_TitleLine, x_TitleLine;
+    uint8_t spr_size, Spr0_Data, temp;
+    uint8_t nNameTable, BG_TitlePatNum;
+    uint8_t BG_Data0, BG_Data1, BG_Data;
+    uint16_t title_addr;
+    uint8_t *BG_Patterntable;
+    uint8_t *Spr_Patterntable;
 
     //判断sprite #0 显示区域是否在当前行
     spr_size = PPU_Reg.NES_R0 & R0_SPR_SIZE ? 0x0F : 0x07; // spr_size 8：0~7，16: 0~15
@@ -455,9 +449,9 @@ void NES_RenderBGLine(int y_axes)
 {
     int i, y_scroll, /*x_scroll,*/ dy_axes, dx_axes;
     int Buffer_LineCnt, y_TitleLine, x_TitleLine;
-    u8 H_byte, L_byte, BG_color_num, BG_attr_value;
-    u8 nNameTable, BG_TitlePatNum;
-    u8 *BG_Patterntable;
+    uint8_t H_uint8_t, L_uint8_t, BG_color_num, BG_attr_value;
+    uint8_t nNameTable, BG_TitlePatNum;
+    uint8_t *BG_Patterntable;
 
     // nNameTable = PPU_BG_NameTableNum;	 		//取得当前屏幕的name table 号
     nNameTable = PPU_Reg.NES_R0 & R0_NAME_TABLE;
@@ -480,8 +474,8 @@ void NES_RenderBGLine(int y_axes)
     {
         // printf("\r\n%d %d %d",y_axes, y_TitleLine, x_TitleLine);
         BG_TitlePatNum = PPU_Mem.name_table[nNameTable][(y_TitleLine << 5) + x_TitleLine]; // y_TitleLine * 32,当前显示的title号的
-        L_byte = BG_Patterntable[(BG_TitlePatNum << 4) + dy_axes];                         // BG_TitlePatNum * 16 + dy_xaes
-        H_byte = BG_Patterntable[(BG_TitlePatNum << 4) + dy_axes + 8];
+        L_uint8_t = BG_Patterntable[(BG_TitlePatNum << 4) + dy_axes];                         // BG_TitlePatNum * 16 + dy_xaes
+        H_uint8_t = BG_Patterntable[(BG_TitlePatNum << 4) + dy_axes + 8];
         //属性表 中查找 高两位颜色索引值						除4去余数再乘8				除4
         BG_attr_value = PPU_Mem.name_table[nNameTable][960 + ((y_TitleLine >> 2) << 3) + (x_TitleLine >> 2)]; // title对应的属性表8bit值
                                                                                                               //（title对应的高两位）（y title bit2  右移 1位）(运算)或 （x title bit2）所得值 [000][010][100][110] 0 2 4 6为对应的attr 8bit[0:1][2:3][4:5][6:7] 中的高两位颜色值
@@ -491,8 +485,8 @@ void NES_RenderBGLine(int y_axes)
         {
             //[1:0]低两位颜色索引值
             BG_color_num = BG_attr_value;
-            BG_color_num |= (L_byte >> i) & 1;
-            BG_color_num |= ((H_byte >> i) & 1) << 1;
+            BG_color_num |= (L_uint8_t >> i) & 1;
+            BG_color_num |= ((H_uint8_t >> i) & 1) << 1;
             if (BG_color_num & 3)
                 Buffer_scanline[Buffer_LineCnt] = NES_Color_Palette[PPU_Mem.image_palette[BG_color_num]]; //如果低两位为0，则为透明色,不写入
             Buffer_LineCnt++;
@@ -505,15 +499,15 @@ void NES_RenderBGLine(int y_axes)
     for (x_TitleLine = 0; x_TitleLine <= (PPU_BG_HScrlOrg >> 3); x_TitleLine++)
     {
         BG_TitlePatNum = PPU_Mem.name_table[nNameTable][(y_TitleLine << 5) + x_TitleLine]; // y_TitleLine * 32,当前显示的title号的
-        L_byte = BG_Patterntable[(BG_TitlePatNum << 4) + dy_axes];
-        H_byte = BG_Patterntable[(BG_TitlePatNum << 4) + dy_axes + 8];
+        L_uint8_t = BG_Patterntable[(BG_TitlePatNum << 4) + dy_axes];
+        H_uint8_t = BG_Patterntable[(BG_TitlePatNum << 4) + dy_axes + 8];
         BG_attr_value = PPU_Mem.name_table[nNameTable][960 + ((y_TitleLine >> 2) << 3) + (x_TitleLine >> 2)]; // title对应的属性表8bit值
         BG_attr_value = ((BG_attr_value >> (((y_TitleLine & 2) << 1) | (x_TitleLine & 2))) & 3) << 2;         //索引颜色[4:3]
         for (i = 7; i >= 0; i--)
         {
             BG_color_num = BG_attr_value;
-            BG_color_num |= (L_byte >> i) & 1;
-            BG_color_num |= ((H_byte >> i) & 1) << 1;
+            BG_color_num |= (L_uint8_t >> i) & 1;
+            BG_color_num |= ((H_uint8_t >> i) & 1) << 1;
             if (BG_color_num & 3)
                 Buffer_scanline[Buffer_LineCnt] = NES_Color_Palette[PPU_Mem.image_palette[BG_color_num]];
             Buffer_LineCnt++;
@@ -522,10 +516,10 @@ void NES_RenderBGLine(int y_axes)
 }
 
 //显示一个sprite的title 88
-void NES_RenderSprPattern(SpriteType *sprptr, u8 *Spr_Patterntable, u16 title_addr, u8 dy_axes)
+void NES_RenderSprPattern(SpriteType *sprptr, uint8_t *Spr_Patterntable, uint16_t title_addr, uint8_t dy_axes)
 {
     int i, dx_axes;
-    u8 Spr_color_num, H_byte, L_byte;
+    uint8_t Spr_color_num, H_uint8_t, L_uint8_t;
 
     if ((PPU_Reg.NES_R1 & R1_SPR_LEFT8 == 0) && sprptr->x < 8) //禁止左8列像素显示
     {
@@ -540,14 +534,14 @@ void NES_RenderSprPattern(SpriteType *sprptr, u8 *Spr_Patterntable, u16 title_ad
     {
         dy_axes = 7 - dy_axes; // sprite 8*8显示dy_axes行
     }
-    L_byte = Spr_Patterntable[title_addr + dy_axes];
-    H_byte = Spr_Patterntable[title_addr + dy_axes + 8];
+    L_uint8_t = Spr_Patterntable[title_addr + dy_axes];
+    H_uint8_t = Spr_Patterntable[title_addr + dy_axes + 8];
     if (sprptr->attr & SPR_HFLIP) //若水平翻转
     {
         for (i = 7; i >= dx_axes; i--) //先写右边 颜色数据
         {
-            Spr_color_num = (L_byte >> i) & 1;         // bit0
-            Spr_color_num |= ((H_byte >> i) & 1) << 1; // bit1
+            Spr_color_num = (L_uint8_t >> i) & 1;         // bit0
+            Spr_color_num |= ((H_uint8_t >> i) & 1) << 1; // bit1
             if (Spr_color_num == 0)
                 continue;
             Spr_color_num |= (sprptr->attr & 0x03) << 2;                                                   // bit23
@@ -558,8 +552,8 @@ void NES_RenderSprPattern(SpriteType *sprptr, u8 *Spr_Patterntable, u16 title_ad
     {
         for (i = 7; i >= dx_axes; i--) //先写右边 颜色数据
         {
-            Spr_color_num = (L_byte >> (7 - i)) & 1;         // bit0
-            Spr_color_num |= ((H_byte >> (7 - i)) & 1) << 1; // bit1
+            Spr_color_num = (L_uint8_t >> (7 - i)) & 1;         // bit0
+            Spr_color_num |= ((H_uint8_t >> (7 - i)) & 1) << 1; // bit1
             if (Spr_color_num == 0)
                 continue;
             Spr_color_num |= (sprptr->attr & 0x03) << 2;                                                   // bit23
@@ -571,7 +565,7 @@ void NES_RenderSprPattern(SpriteType *sprptr, u8 *Spr_Patterntable, u16 title_ad
 // sprite 8*8 显示数据扫描
 void NES_RenderSprite88(SpriteType *sprptr, int dy_axes)
 {
-    u8 *Spr_Patterntable;
+    uint8_t *Spr_Patterntable;
     //取得所在title Pattern首地址
     Spr_Patterntable = (PPU_Reg.NES_R0 & SPR_PATTERN_ADDR) ? PPU_Mem.patterntable1 : PPU_Mem.patterntable0;
     NES_RenderSprPattern(sprptr, Spr_Patterntable, sprptr->t_num << 4, (u8)dy_axes);
@@ -682,9 +676,9 @@ void NES_RenderLine(int y_axes)
 
 // PPU 将行缓存，写入LCD
 // NES游戏的分辨率为256*240.	 但因为 NTSC 所以分辨率剩下 256x224。
-void NES_LCD_DisplayLine(int y_axes, u16 *Disaplyline_buffer)
+void NES_LCD_DisplayLine(int y_axes, uint16_t *Disaplyline_buffer)
 {
-    u16 index;
+    uint16_t index;
     //	LCD_SetCursor(0,y_axes+30+20);//偏移到中间	  //设置光标位置
     LCD_SetCursor(32, y_axes); //偏移到中间	  //设置光标位置
     LCD_WriteRAM_Prepare();

@@ -1,10 +1,4 @@
 #include "nes_main.h"
-//////////////////////////////////////////////////////////////////////////////////
-//我的 STM32开发板
-// NES模拟器 代码
-//修改日期:2012/10/3
-//版本：V1.0
-//////////////////////////////////////////////////////////////////////////////////
 
 // 6502标志位 flags = NVRBDIZC
 #define C_FLAG 0x01 // 1: Carry
@@ -17,8 +11,8 @@
 #define N_FLAG 0x80 // 1: Negative
 
 // flags = NVRBDIZC
-BYTE a_reg, x_reg, y_reg, flag_reg, s_reg;
-WORD pc_reg = 0;
+uint8_t a_reg, x_reg, y_reg, flag_reg, s_reg;
+uint16_t pc_reg = 0;
 
 //中断标志
 CPU_InitFlag NMI_Flag;
@@ -33,23 +27,23 @@ CPU_InitFlag IRQ_Flag;
 #define PC pc_reg
 
 // internal registers
-BYTE opcode;
+uint8_t opcode;
 int clockticks6502;
 
 // help variables
-WORD savepc;
-BYTE value;
+uint16_t savepc;
+uint8_t value;
 int sum, saveflags;
-WORD help;
+uint16_t help;
 
 // 6502 memory map
-u8 *ram6502; // RAM  2K字节,由malloc申请
+uint8_t *ram6502; // RAM  2K字节,由malloc申请
 // u8* ppu_regbase;		// PPU IO reg
 // u8* apu_regbase;		// APU IO reg
-u8 *exp_rom;	  // expansion rom
-u8 *sram;		  // sram
-u8 *prg_rombank0; // prg-rom lower bank
-u8 *prg_rombank1; // prg-rom upper bank
+uint8_t *exp_rom;	  // expansion rom
+uint8_t *sram;		  // sram
+uint8_t *prg_rombank0; // prg-rom lower bank
+uint8_t *prg_rombank1; // prg-rom upper bank
 
 // arrays
 typedef struct
@@ -338,9 +332,9 @@ const OPCODE opcodetable[] =
 //////////////////////////////////////////////////////////////////////
 
 // sprite DMA (写地址到$4014, 左移8位，原数据地址)
-void SprDMA(BYTE scr_addr) // scr_addr 为高8位地址
+void SprDMA(uint8_t scr_addr) // scr_addr 为高8位地址
 {
-	u8 *scr_addrptr = 0; //将传送sprite数据 指针
+	uint8_t *scr_addrptr = 0; //将传送sprite数据 指针
 	int i;
 	switch (scr_addr >> 4) //选择源地址数据区域
 	{
@@ -390,7 +384,7 @@ void SprDMA(BYTE scr_addr) // scr_addr 为高8位地址
 }
 
 //读取6502存储器
-int get6502memory(WORD addr) //没0x2000递增
+int get6502memory(uint16_t addr) //没0x2000递增
 {
 	switch (addr & 0xE000)
 	{
@@ -445,7 +439,7 @@ int get6502memory(WORD addr) //没0x2000递增
 }
 
 //写6502存储器
-void put6502memory(WORD addr, BYTE value)
+void put6502memory(uint16_t addr, uint8_t value)
 {
 	switch (addr & 0xE000)
 	{
@@ -801,8 +795,8 @@ void bpl6502(void)
 void brk6502(void)
 {
 	PC++;
-	put6502memory(0x0100 + S--, (BYTE)(PC >> 8));
-	put6502memory(0x0100 + S--, (BYTE)(PC & 0xff));
+	put6502memory(0x0100 + S--, (uint8_t)(PC >> 8));
+	put6502memory(0x0100 + S--, (uint8_t)(PC & 0xff));
 	put6502memory(0x0100 + S--, P);
 	P |= 0x14;
 	PC = get6502memory(0xFFFE) + (get6502memory(0xFFFF) << 8);
@@ -911,7 +905,7 @@ void cpy6502(void)
 
 void dec6502(void)
 {
-	u8 temp;
+	uint8_t temp;
 	opcodetable[opcode].adrmode();
 	temp = get6502memory(savepc);
 	temp--;
@@ -969,7 +963,7 @@ void eor6502(void)
 
 void inc6502(void)
 {
-	u8 temp;
+	uint8_t temp;
 	opcodetable[opcode].adrmode();
 	// gameImage[savepc]++;
 	temp = get6502memory(savepc);
@@ -1021,8 +1015,8 @@ void jmp6502(void)
 void jsr6502(void)
 {
 	PC++;
-	put6502memory(0x0100 + S--, (BYTE)(PC >> 8));
-	put6502memory(0x0100 + S--, (BYTE)(PC & 0xff));
+	put6502memory(0x0100 + S--, (uint8_t)(PC >> 8));
+	put6502memory(0x0100 + S--, (uint8_t)(PC & 0xff));
 	PC--;
 	opcodetable[opcode].adrmode();
 	PC = savepc;
@@ -1458,7 +1452,7 @@ void stz6502(void)
 
 void tsb6502(void)
 {
-	u8 temp;
+	uint8_t temp;
 	opcodetable[opcode].adrmode();
 	temp = get6502memory(savepc);
 	temp |= A;
@@ -1472,7 +1466,7 @@ void tsb6502(void)
 
 void trb6502(void)
 {
-	u8 temp;
+	uint8_t temp;
 	opcodetable[opcode].adrmode();
 	temp = get6502memory(savepc);
 	temp &= (A ^ 0xFF);
@@ -1504,8 +1498,8 @@ void reset6502(void)
 // Non maskerable interrupt
 void nmi6502(void)
 {
-	put6502memory(0x0100 + S--, (BYTE)(PC >> 8));
-	put6502memory(0x0100 + S--, (BYTE)(PC & 0xff));
+	put6502memory(0x0100 + S--, (uint8_t)(PC >> 8));
+	put6502memory(0x0100 + S--, (uint8_t)(PC & 0xff));
 	put6502memory(0x0100 + S--, P);
 	P |= 0x04;
 	PC = get6502memory(0xfffa);
@@ -1515,8 +1509,8 @@ void nmi6502(void)
 // Maskerable Interrupt
 void irq6502(void)
 {
-	put6502memory(0x0100 + S--, (BYTE)(PC >> 8));
-	put6502memory(0x0100 + S--, (BYTE)(PC & 0xff));
+	put6502memory(0x0100 + S--, (uint8_t)(PC >> 8));
+	put6502memory(0x0100 + S--, (uint8_t)(PC & 0xff));
 	put6502memory(0x0100 + S--, P);
 	P |= 0x04;
 	PC = get6502memory(0xfffe);
@@ -1570,10 +1564,10 @@ void exec6502(int timerTicks)
 }
 
 //初始化6502 存储器
-void init6502mem(u8 *exp_romptr,
-				 u8 *sramptr,
-				 u8 *prg_rombank0ptr,
-				 u8 rom_num)
+void init6502mem(uint8_t *exp_romptr,
+				 uint8_t *sramptr,
+				 uint8_t *prg_rombank0ptr,
+				 uint8_t rom_num)
 {
 	exp_rom = exp_romptr;									   // expansion rom
 	sram = sramptr;											   // sram

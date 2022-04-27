@@ -43,7 +43,7 @@ int8_t load_nes(uint8_t *path)
 
     // 5.运行功能
     // printf("%s\n", buf);
-    // nes_main();
+    nes_main(buf);
 
     fclose(fp);
     free(buf);

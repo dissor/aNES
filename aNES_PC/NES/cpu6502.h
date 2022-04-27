@@ -1,6 +1,6 @@
-#ifndef _6502_H_
-#define _6502_H_
-#include "nes_datatype.h"
+#ifndef _CPU6502_H_
+#define _CPU6502_H_
+
 #include "PPU.h"
 
 // Address mask. Atari Asteroids/Deluxe use 0x7fff -
@@ -15,8 +15,8 @@ typedef enum
 extern CPU_InitFlag NMI_Flag;
 extern CPU_InitFlag NMI_Flag;
 //存储器指针
-extern u8 *prg_rombank0; // prg-rom lower bank
-extern u8 *prg_rombank1; // prg-rom upper bank
+extern uint8_t *prg_rombank0; // prg-rom lower bank
+extern uint8_t *prg_rombank1; // prg-rom upper bank
 //指令解释
 void implied6502(void);
 void immediate6502(void);
@@ -111,10 +111,10 @@ void irq6502(void); //可屏蔽中断
 
 // must be called first to initialise all 6502 engines arrays
 //初始化CPU RAM
-void init6502mem(u8 *exp_romptr,
-                 u8 *sramptr,
-                 u8 *prg_rombank0ptr,
-                 u8 rom_num);
+void init6502mem(uint8_t *exp_romptr,
+                 uint8_t *sramptr,
+                 uint8_t *prg_rombank0ptr,
+                 uint8_t rom_num);
 
 // sets all of the 6502 registers. The program counter is set from
 // locations $FFFC and $FFFD masked with the above addrmask
