@@ -32,11 +32,11 @@ uint8_t nes_main(char *rom_file);
 void NesFrameCycle(void);
 // void NES_ReadJoyPad(u8 JoyPadNum);
 
-// // PPU使用
-// extern uint8_t *NameTable;        // 2K的变量
-// extern u16 *Buffer_scanline; //行显示缓存,上下标越界最大为7，显示区 7 ~ 263  0~7 263~270 为防止溢出区
-// // CPU使用
-// extern uint8_t *ram6502; // RAM  2K字节,由malloc申请
+// PPU使用
+extern uint8_t *NameTable;   // 2K的变量
+extern uint16_t *Buffer_scanline; //行显示缓存,上下标越界最大为7，显示区 7 ~ 263  0~7 263~270 为防止溢出区
+// CPU使用
+extern uint8_t *ram6502; // RAM  2K字节,由malloc申请
 
 uint8_t nes_mem_creat(void); //开辟nes运行所需的RAM.
 void nes_mem_delete(void);   //删除nes运行时申请的RAM
