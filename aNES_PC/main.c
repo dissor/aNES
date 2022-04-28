@@ -2,7 +2,7 @@
  * @Author: dissor
  * @Date: 2022-04-28 10:58:24
  * @LastEditors: dissor
- * @LastEditTime: 2022-04-28 11:45:45
+ * @LastEditTime: 2022-04-28 12:03:05
  * @FilePath: \aNES_PC\main.c
  * @Description:
  * guojianwenjonas@foxmail.com
@@ -100,17 +100,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     //窗口绘制消息
     case WM_PAINT:
         hdc = BeginPaint(hwnd, &ps);
-        GetClientRect(hwnd, &rect);
-        DrawText(
-            hdc,
-            TEXT("Hello World!"),
-            -1,
-            &rect,
-            DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+        RoundRect(hdc, 20, 20, 150, 150, 25, 25);
         EndPaint(hwnd, &ps);
         return 0;
 
-        //窗口销毁消息
+    //窗口销毁消息
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
