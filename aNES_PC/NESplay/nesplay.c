@@ -53,7 +53,7 @@ int8_t load_nes(uint8_t *path)
 // NES游戏
 uint8_t nes_play(void)
 {
-    load_nes("../Images/0.demo.nes"); //开始nes游戏
-    // load_nes("../NES/README.TXT");
+    // load_nes("../Images/0.demo.nes"); //开始nes游戏
+    load_nes("C:/Users/mylk/Desktop/NES/aNES/aNES_PC/Images/0.demo.nes");
     return 0;
 }
