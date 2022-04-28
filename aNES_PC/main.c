@@ -2,7 +2,7 @@
  * @Author: dissor
  * @Date: 2022-04-28 10:58:24
  * @LastEditors: dissor
- * @LastEditTime: 2022-04-28 12:03:05
+ * @LastEditTime: 2022-04-28 15:07:32
  * @FilePath: \aNES_PC\main.c
  * @Description:
  * guojianwenjonas@foxmail.com
@@ -100,7 +100,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     //窗口绘制消息
     case WM_PAINT:
         hdc = BeginPaint(hwnd, &ps);
-        RoundRect(hdc, 20, 20, 150, 150, 25, 25);
+        for (int i = 0; i < 300; i++)
+        {
+            for (int j = 0; j < 200; j++)
+            {
+                SetPixel(hdc, 20 + i, 30 + j, 0xb1d85c);
+            }
+        }
         EndPaint(hwnd, &ps);
         return 0;
 
