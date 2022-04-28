@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 project(aNES_PC LANGUAGES C)
 
 #设置debug模式
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -mwindows")
 
 add_executable(aNES_PC "")
 
