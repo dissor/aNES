@@ -1,4 +1,3 @@
 /build/*
 /Images/*
 !Images/0.demo.nes
-/.vscode/*
