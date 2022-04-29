@@ -2,7 +2,7 @@
  * @Author: dissor
  * @Date: 2022-04-28 10:58:24
  * @LastEditors: dissor
- * @LastEditTime: 2022-04-28 15:07:32
+ * @LastEditTime: 2022-04-29 21:33:38
  * @FilePath: \aNES_PC\main.c
  * @Description:
  * guojianwenjonas@foxmail.com
@@ -48,8 +48,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         WS_OVERLAPPEDWINDOW, //窗口风格
         CW_USEDEFAULT,       //初始化时x轴的位置
         CW_USEDEFAULT,       //初始化时y轴的位置
-        500,                 //窗口宽度
-        300,                 //窗口高度
+        655,                 //窗口宽度
+        320,                 //窗口高度
         NULL,                //父窗口句柄
         NULL,                //窗口菜单句柄
         hInstance,           //当前窗口的句柄
@@ -76,6 +76,44 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     return 0;
 }
 
+BITMAPFILEHEADER *DibLoadImage(PTSTR pstrFileName)
+{
+    BOOL bSuccess;
+    DWORD dwFileSize, dwHighSize, dwBytesRead;
+    HANDLE hFile;
+    BITMAPFILEHEADER *pbmfh;
+
+    hFile = CreateFile(pstrFileName, GENERIC_READ, FILE_SHARE_READ, NULL,
+                       OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+    if (hFile == INVALID_HANDLE_VALUE)
+        return NULL;
+    //返回文件大小的低位字，保存在dwFileSize中，高位字保存在dwHighSize中
+    dwFileSize = GetFileSize(hFile, &dwHighSize);
+    if (dwHighSize) //文件太大，超过4G则dwHighSize不为0，退出
+    {
+        CloseHandle(hFile);
+        return NULL;
+    }
+    //为位图文件分配内存，内存指针由文件头指针保管
+    pbmfh = malloc(dwFileSize);
+    if (!pbmfh)
+    {
+        CloseHandle(hFile);
+        return NULL;
+    }
+    //读位图文件到内存
+    bSuccess = ReadFile(hFile, pbmfh, dwFileSize, &dwBytesRead, NULL);
+    CloseHandle(hFile);
+    if ((!bSuccess) || (dwBytesRead != dwFileSize) ||
+        (pbmfh->bfType != *(WORD *)"BM") || //位图标志“BM”
+        (pbmfh->bfSize != dwFileSize))
+    {
+        free(pbmfh);
+        return NULL;
+    }
+    return pbmfh;
+}
+
 /**********第4步：窗口过程**********/
 /**
  * GetMessage 每获取到一条消息，最终都会丢给窗口过程（WndProc）去处理
@@ -95,18 +133,74 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     PAINTSTRUCT ps;
     RECT rect;
 
+    static BITMAPFILEHEADER *pbmfh;
+    static BITMAPINFO *pbmi;
+    static BYTE *pBits;
+    static int cxClient, cyClient, cxDib, cyDib;
+
     switch (message)
     {
+    case WM_CREATE:
+
+        // pbmfh = DibLoadImage("C:/Users/mylk/Desktop/NES/aNES/aNES_PC/0.bmp");
+        // if (pbmfh == NULL)
+        // {
+        //     printf("DibLoadImage error!\n");
+        //     return;
+        // }
+
+        FILE *file = NULL;
+        file = fopen("C:/Users/mylk/Desktop/NES/aNES/aNES_PC/0.bmp", "rb");
+
+        fseek(file, 0, SEEK_END);
+        int size = ftell(file);
+        rewind(file);
+        printf("size: %d\n", size);
+
+        pbmfh = malloc(size);
+        fread(pbmfh, 1, size, file);
+
+        //获得信息头和像素位指针
+        pbmi = (BITMAPINFO *)(pbmfh + 1);
+        pBits = (BYTE *)pbmfh + pbmfh->bfOffBits;
+
+        //获取图像大小(为方便，这里只处理BITMAPINFOHEADER结构的DIB）
+        cxDib = pbmi->bmiHeader.biWidth;
+        cyDib = abs(pbmi->bmiHeader.biHeight); //绝对值！
+        return 0;
+
+    case WM_SIZE:
+        cxClient = LOWORD(lParam);
+        cyClient = HIWORD(lParam);
+        return 0;
+
     //窗口绘制消息
     case WM_PAINT:
         hdc = BeginPaint(hwnd, &ps);
-        for (int i = 0; i < 300; i++)
-        {
-            for (int j = 0; j < 200; j++)
-            {
-                SetPixel(hdc, 20 + i, 30 + j, 0xb1d85c);
-            }
-        }
+
+        // memset(pBits, 255, 60000);
+        // for (int i = 0; i < 300; i++)
+        // {
+        //     for (int j = 0; j < 200; j++)
+        //     {
+        //         SetPixel(hdc, 20 + i, 30 + j, 0xb1d85c);
+        //     }
+        // }
+
+        //从下到上DIB整图显示
+        SetDIBitsToDevice(hdc,
+                          0,
+                          0, // yDst
+                          cxDib,        //整幅图宽度
+                          cyDib,        //整幅图高度
+                          0,
+                          0,
+                          0,     //第一扫描线
+                          cyDib, //扫描线数量
+                          pBits,
+                          pbmi,
+                          DIB_RGB_COLORS);
+
         EndPaint(hwnd, &ps);
         return 0;
 
