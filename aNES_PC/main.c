@@ -2,7 +2,7 @@
  * @Author: dissor
  * @Date: 2022-04-28 10:58:24
  * @LastEditors: dissor
- * @LastEditTime: 2022-04-29 21:33:38
+ * @LastEditTime: 2022-04-29 22:50:32
  * @FilePath: \aNES_PC\main.c
  * @Description:
  * guojianwenjonas@foxmail.com
@@ -48,8 +48,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         WS_OVERLAPPEDWINDOW, //窗口风格
         CW_USEDEFAULT,       //初始化时x轴的位置
         CW_USEDEFAULT,       //初始化时y轴的位置
-        655,                 //窗口宽度
-        320,                 //窗口高度
+        671,                 //窗口宽度
+        359,                 //窗口高度
         NULL,                //父窗口句柄
         NULL,                //窗口菜单句柄
         hInstance,           //当前窗口的句柄
@@ -178,21 +178,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         hdc = BeginPaint(hwnd, &ps);
 
-        // memset(pBits, 255, 60000);
-        // for (int i = 0; i < 300; i++)
-        // {
-        //     for (int j = 0; j < 200; j++)
-        //     {
-        //         SetPixel(hdc, 20 + i, 30 + j, 0xb1d85c);
-        //     }
-        // }
+        memset(pBits, 205, 60000);
+        for (int i = 0; i < 655 * 50; i += 3)
+        {
+            *((char *)pBits + i) = 120;   // B
+            *((char *)pBits + i + 1) = 0; // G
+            *((char *)pBits + i + 2) = 0; // R
+        }
 
         //从下到上DIB整图显示
         SetDIBitsToDevice(hdc,
                           0,
-                          0, // yDst
-                          cxDib,        //整幅图宽度
-                          cyDib,        //整幅图高度
+                          0,     // yDst
+                          cxDib, //整幅图宽度
+                          cyDib, //整幅图高度
                           0,
                           0,
                           0,     //第一扫描线
