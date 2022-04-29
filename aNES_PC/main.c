@@ -2,7 +2,7 @@
  * @Author: dissor
  * @Date: 2022-04-28 10:58:24
  * @LastEditors: dissor
- * @LastEditTime: 2022-04-29 22:50:32
+ * @LastEditTime: 2022-04-30 00:42:43
  * @FilePath: \aNES_PC\main.c
  * @Description:
  * guojianwenjonas@foxmail.com
@@ -12,6 +12,8 @@
 #include "main.h"
 #include "nesplay.h"
 
+HWND hwnd = NULL; //窗口句柄
+int cxClient, cyClient;
 /**
  * @description: 桌面程序主入口
  * @param {HINSTANCE} hInstance 当前窗口句柄
@@ -23,7 +25,6 @@
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     static TCHAR szClassName[] = TEXT("Hello Windows Classic"); //窗口类名
-    HWND hwnd;                                                  //窗口句柄
     MSG msg;                                                    //消息
     WNDCLASS wndclass;                                          //窗口类
 
@@ -76,6 +77,140 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     return 0;
 }
 
+/**********第4步：窗口过程**********/
+/**
+ * GetMessage 每获取到一条消息，最终都会丢给窗口过程（WndProc）去处理
+ * 窗口过程有一个参数 message，会传入发生的事件类型，常用的有：
+ *      WM_CREATE：窗口被创建。
+ *      WM_PAINT：窗口需要更新或重绘。
+ *      WM_WM_DESTROY：窗口被销毁（关闭）。
+ * @param hwnd
+ * @param message
+ * @param wParam
+ * @param lParam
+ * @return
+ */
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    HDC hdc; //设备环境句柄
+    PAINTSTRUCT ps;
+    RECT rect;
+
+    static BITMAPFILEHEADER *pbmfh;
+    static BITMAPINFO *pbmi;
+    static BYTE *pBits;
+    static int cxDib, cyDib;
+
+    switch (message)
+    {
+    case WM_CREATE:
+        _beginthread(GameThread, 0, NULL);
+
+        // pbmfh = DibLoadImage("C:/Users/mylk/Desktop/NES/aNES/aNES_PC/0.bmp");
+        // if (pbmfh == NULL)
+        // {
+        //     printf("DibLoadImage error!\n");
+        //     return;
+        // }
+
+        FILE *file = NULL;
+        file = fopen("C:/Users/mylk/Desktop/NES/aNES/aNES_PC/0.bmp", "rb");
+
+        fseek(file, 0, SEEK_END);
+        int size = ftell(file);
+        rewind(file);
+        printf("size: %d\n", size);
+
+        pbmfh = malloc(size);
+        fread(pbmfh, 1, size, file);
+
+        //获得信息头和像素位指针
+        pbmi = (BITMAPINFO *)(pbmfh + 1);
+        pBits = (BYTE *)pbmfh + pbmfh->bfOffBits;
+
+        //获取图像大小(为方便，这里只处理BITMAPINFOHEADER结构的DIB）
+        cxDib = pbmi->bmiHeader.biWidth;
+        cyDib = abs(pbmi->bmiHeader.biHeight); //绝对值！
+        return 0;
+
+    case WM_SIZE:
+        cxClient = LOWORD(lParam);
+        cyClient = HIWORD(lParam);
+        return 0;
+
+    //窗口绘制消息
+    case WM_PAINT:
+        // hdc = BeginPaint(hwnd, &ps);
+        hdc = GetDC(hwnd); // GetWindowDC
+
+        memset(pBits, 205, 60000);
+        for (int i = 0; i < 655 * 50; i += 3)
+        {
+            *((char *)pBits + i) = 120;   // B
+            *((char *)pBits + i + 1) = 0; // G
+            *((char *)pBits + i + 2) = 0; // R
+        }
+
+        //从下到上DIB整图显示
+        SetDIBitsToDevice(hdc,
+                          0,
+                          0,     // yDst
+                          cxDib, //整幅图宽度
+                          cyDib, //整幅图高度
+                          0,
+                          0,
+                          0,     //第一扫描线
+                          cyDib, //扫描线数量
+                          pBits,
+                          pbmi,
+                          DIB_RGB_COLORS);
+
+        ReleaseDC(hwnd, hdc);
+        // EndPaint(hwnd, &ps);
+        return 0;
+
+    //窗口销毁消息
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
+void GameThread(void *pMessage)
+{
+    nes_play();
+
+    HBRUSH hBrush;
+    HDC hdc;
+    int xLeft, xRight, yTop, yBottom, iRed, iGreen, iBlue;
+
+    while (TRUE)
+    {
+        if (cxClient != 0 || cyClient != 0)
+        {
+            xLeft = rand() % cxClient;
+            xRight = rand() % cxClient;
+            yTop = rand() % cyClient;
+            yBottom = rand() % cyClient;
+
+            iRed = rand() & 255; //取出最低位8位
+            iGreen = rand() & 255;
+            iBlue = rand() & 255;
+
+            hdc = GetDC(hwnd);
+            hBrush = CreateSolidBrush(RGB(iRed, iGreen, iBlue));
+            SelectObject(hdc, hBrush);
+
+            Rectangle(hdc, min(xLeft, xRight), min(yTop, yBottom),
+                      max(xLeft, xRight), max(yTop, yBottom));
+
+            DeleteObject(hBrush);
+            ReleaseDC(hwnd, hdc);
+        }
+    }
+}
+
 BITMAPFILEHEADER *DibLoadImage(PTSTR pstrFileName)
 {
     BOOL bSuccess;
@@ -112,101 +247,4 @@ BITMAPFILEHEADER *DibLoadImage(PTSTR pstrFileName)
         return NULL;
     }
     return pbmfh;
-}
-
-/**********第4步：窗口过程**********/
-/**
- * GetMessage 每获取到一条消息，最终都会丢给窗口过程（WndProc）去处理
- * 窗口过程有一个参数 message，会传入发生的事件类型，常用的有：
- *      WM_CREATE：窗口被创建。
- *      WM_PAINT：窗口需要更新或重绘。
- *      WM_WM_DESTROY：窗口被销毁（关闭）。
- * @param hwnd
- * @param message
- * @param wParam
- * @param lParam
- * @return
- */
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    HDC hdc; //设备环境句柄
-    PAINTSTRUCT ps;
-    RECT rect;
-
-    static BITMAPFILEHEADER *pbmfh;
-    static BITMAPINFO *pbmi;
-    static BYTE *pBits;
-    static int cxClient, cyClient, cxDib, cyDib;
-
-    switch (message)
-    {
-    case WM_CREATE:
-
-        // pbmfh = DibLoadImage("C:/Users/mylk/Desktop/NES/aNES/aNES_PC/0.bmp");
-        // if (pbmfh == NULL)
-        // {
-        //     printf("DibLoadImage error!\n");
-        //     return;
-        // }
-
-        FILE *file = NULL;
-        file = fopen("C:/Users/mylk/Desktop/NES/aNES/aNES_PC/0.bmp", "rb");
-
-        fseek(file, 0, SEEK_END);
-        int size = ftell(file);
-        rewind(file);
-        printf("size: %d\n", size);
-
-        pbmfh = malloc(size);
-        fread(pbmfh, 1, size, file);
-
-        //获得信息头和像素位指针
-        pbmi = (BITMAPINFO *)(pbmfh + 1);
-        pBits = (BYTE *)pbmfh + pbmfh->bfOffBits;
-
-        //获取图像大小(为方便，这里只处理BITMAPINFOHEADER结构的DIB）
-        cxDib = pbmi->bmiHeader.biWidth;
-        cyDib = abs(pbmi->bmiHeader.biHeight); //绝对值！
-        return 0;
-
-    case WM_SIZE:
-        cxClient = LOWORD(lParam);
-        cyClient = HIWORD(lParam);
-        return 0;
-
-    //窗口绘制消息
-    case WM_PAINT:
-        hdc = BeginPaint(hwnd, &ps);
-
-        memset(pBits, 205, 60000);
-        for (int i = 0; i < 655 * 50; i += 3)
-        {
-            *((char *)pBits + i) = 120;   // B
-            *((char *)pBits + i + 1) = 0; // G
-            *((char *)pBits + i + 2) = 0; // R
-        }
-
-        //从下到上DIB整图显示
-        SetDIBitsToDevice(hdc,
-                          0,
-                          0,     // yDst
-                          cxDib, //整幅图宽度
-                          cyDib, //整幅图高度
-                          0,
-                          0,
-                          0,     //第一扫描线
-                          cyDib, //扫描线数量
-                          pBits,
-                          pbmi,
-                          DIB_RGB_COLORS);
-
-        EndPaint(hwnd, &ps);
-        return 0;
-
-    //窗口销毁消息
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
-    }
-    return DefWindowProc(hwnd, message, wParam, lParam);
 }

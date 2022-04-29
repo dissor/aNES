@@ -667,10 +667,12 @@ void NES_RenderLine(int y_axes)
         }
     }
     else
+    {
         for (i = 8; i < 264; i++)
         {
             // Buffer_scanline[i] = BLACK; //清空显示缓存,黑屏
         }
+    }
 
     //原始数据  8  264
     //完成扫描，将行显示缓存写入LCD*/

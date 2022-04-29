@@ -2,7 +2,7 @@
  * @Author: dissor
  * @Date: 2022-04-26 12:22:45
  * @LastEditors: dissor
- * @LastEditTime: 2022-04-28 11:32:54
+ * @LastEditTime: 2022-04-29 23:26:46
  * @FilePath: \aNES_PC\main.h
  * @Description:
  * guojianwenjonas@foxmail.com
@@ -22,8 +22,11 @@ extern "C"
 #include <string.h>
 #include <stdbool.h>
 #include <windows.h>
+#include <process.h>
 
+BITMAPFILEHEADER *DibLoadImage(PTSTR pstrFileName);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+void GameThread(void* pMessage);
 
 #ifdef __cplusplus
 }
