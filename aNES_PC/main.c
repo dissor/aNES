@@ -2,7 +2,7 @@
  * @Author: dissor
  * @Date: 2022-04-28 10:58:24
  * @LastEditors: dissor
- * @LastEditTime: 2022-04-30 00:42:43
+ * @LastEditTime: 2022-04-30 09:56:14
  * @FilePath: \aNES_PC\main.c
  * @Description:
  * guojianwenjonas@foxmail.com
@@ -24,6 +24,10 @@ int cxClient, cyClient;
  */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+    AllocConsole();
+    freopen("CONOUT$","w+t",stdout);
+    freopen("CONIN$","r+t",stdin);
+
     static TCHAR szClassName[] = TEXT("Hello Windows Classic"); //窗口类名
     MSG msg;                                                    //消息
     WNDCLASS wndclass;                                          //窗口类
@@ -72,6 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         DispatchMessage(&msg);  //分派消息
     }
 
+    FreeConsole();
     return msg.wParam;
     // nes_play();
     return 0;

@@ -665,13 +665,15 @@ void NES_RenderLine(int y_axes)
                     NES_RenderSprite88(&sprite[i], dy_axes); //若为假，sprite的大小8*8
             }
         }
+        printf("RGB\n");
     }
     else
     {
         for (i = 8; i < 264; i++)
         {
-            // Buffer_scanline[i] = BLACK; //清空显示缓存,黑屏
+            Buffer_scanline[i] = 0; //清空显示缓存,黑屏
         }
+        printf("black\n");
     }
 
     //原始数据  8  264
