@@ -2,7 +2,7 @@
  * @Author: dissor
  * @Date: 2022-04-28 10:58:24
  * @LastEditors: dissor
- * @LastEditTime: 2022-04-30 09:56:14
+ * @LastEditTime: 2022-05-03 16:52:20
  * @FilePath: \aNES_PC\main.c
  * @Description:
  * guojianwenjonas@foxmail.com
@@ -14,6 +14,9 @@
 
 HWND hwnd = NULL; //窗口句柄
 int cxClient, cyClient;
+BITMAPINFO *pbmi;
+BYTE *pBits;
+int cxDib, cyDib;
 /**
  * @description: 桌面程序主入口
  * @param {HINSTANCE} hInstance 当前窗口句柄
@@ -25,8 +28,8 @@ int cxClient, cyClient;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     AllocConsole();
-    freopen("CONOUT$","w+t",stdout);
-    freopen("CONIN$","r+t",stdin);
+    freopen("CONOUT$", "w+t", stdout);
+    freopen("CONIN$", "r+t", stdin);
 
     static TCHAR szClassName[] = TEXT("Hello Windows Classic"); //窗口类名
     MSG msg;                                                    //消息
@@ -102,9 +105,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     RECT rect;
 
     static BITMAPFILEHEADER *pbmfh;
-    static BITMAPINFO *pbmi;
-    static BYTE *pBits;
-    static int cxDib, cyDib;
 
     switch (message)
     {
@@ -144,35 +144,35 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         return 0;
 
     //窗口绘制消息
-    case WM_PAINT:
-        // hdc = BeginPaint(hwnd, &ps);
-        hdc = GetDC(hwnd); // GetWindowDC
+    // case WM_PAINT:
+    //     // hdc = BeginPaint(hwnd, &ps);
+    //     hdc = GetDC(hwnd); // GetWindowDC
 
-        memset(pBits, 205, 60000);
-        for (int i = 0; i < 655 * 50; i += 3)
-        {
-            *((char *)pBits + i) = 120;   // B
-            *((char *)pBits + i + 1) = 0; // G
-            *((char *)pBits + i + 2) = 0; // R
-        }
+    //     memset(pBits, 205, 60000);
+    //     for (int i = 0; i < 655 * 50; i += 3)
+    //     {
+    //         *((char *)pBits + i) = 120;   // B
+    //         *((char *)pBits + i + 1) = 0; // G
+    //         *((char *)pBits + i + 2) = 0; // R
+    //     }
 
-        //从下到上DIB整图显示
-        SetDIBitsToDevice(hdc,
-                          0,
-                          0,     // yDst
-                          cxDib, //整幅图宽度
-                          cyDib, //整幅图高度
-                          0,
-                          0,
-                          0,     //第一扫描线
-                          cyDib, //扫描线数量
-                          pBits,
-                          pbmi,
-                          DIB_RGB_COLORS);
+    //     //从下到上DIB整图显示
+    //     SetDIBitsToDevice(hdc,
+    //                       0,
+    //                       0,     // yDst
+    //                       cxDib, //整幅图宽度
+    //                       cyDib, //整幅图高度
+    //                       0,
+    //                       0,
+    //                       0,     //第一扫描线
+    //                       cyDib, //扫描线数量
+    //                       pBits,
+    //                       pbmi,
+    //                       DIB_RGB_COLORS);
 
-        ReleaseDC(hwnd, hdc);
-        // EndPaint(hwnd, &ps);
-        return 0;
+    //     ReleaseDC(hwnd, hdc);
+    //     // EndPaint(hwnd, &ps);
+    //     return 0;
 
     //窗口销毁消息
     case WM_DESTROY:
@@ -252,4 +252,34 @@ BITMAPFILEHEADER *DibLoadImage(PTSTR pstrFileName)
         return NULL;
     }
     return pbmfh;
+}
+
+void setdmp(int yline, uint16_t *dwPixel, uint16_t len)
+{
+    // hdc = BeginPaint(hwnd, &ps);
+    HDC hdc = GetDC(hwnd); // GetWindowDC
+
+    // memset(pBits, 205, 60000);
+    for (int i = 0; i < len; i++)
+    {
+        *((char *)pBits + i * 3) = ((dwPixel[i] & 0x001f) >> 0) << 3;      // B
+        *((char *)pBits + i * 3 + 1) = ((dwPixel[i] & 0x07e0) >> 5) << 2;  // G
+        *((char *)pBits + i * 3 + 2) = ((dwPixel[i] & 0xf800) >> 11) << 3; // R
+    }
+
+    //从下到上DIB整图显示
+    SetDIBitsToDevice(hdc,
+                      0,
+                      0,     // yDst
+                      cxDib, //整幅图宽度
+                      cyDib, //整幅图高度
+                      0,
+                      0,
+                      yline, //第一扫描线
+                      1,     //扫描线数量
+                      pBits,
+                      pbmi,
+                      DIB_RGB_COLORS);
+
+    ReleaseDC(hwnd, hdc);
 }

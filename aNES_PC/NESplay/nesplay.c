@@ -1,3 +1,13 @@
+/*
+ * @Author: dissor
+ * @Date: 2022-04-26 12:16:52
+ * @LastEditors: dissor
+ * @LastEditTime: 2022-05-03 19:12:55
+ * @FilePath: \aNES_PC\NESplay\nesplay.c
+ * @Description:
+ * guojianwenjonas@foxmail.com
+ * Copyright (c) 2022 by dissor, All Rights Reserved.
+ */
 #include "nesplay.h"
 
 //加载游戏,开始玩

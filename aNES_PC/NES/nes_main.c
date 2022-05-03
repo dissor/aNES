@@ -42,12 +42,16 @@ void NesFrameCycle(void)
                 exec6502(CLOCKS_PER_SCANLINE - clocks);
             }
             else
+            {
                 exec6502(CLOCKS_PER_SCANLINE); //耗时大户
+            }
 
             if (PPU_Reg.NES_R1 & (R1_BG_VISIBLE | R1_SPR_VISIBLE)) //若为假，关闭显示
             {
                 if (SpriteHitFlag == false)
+                {
                     NES_GetSpr0HitFlag(PPU_scanline - SCAN_LINE_DISPALY_START_NUM); //查找Sprite #0 碰撞标志
+                }
             }
             if ((frame_cnt % 3) == 0) //每3帧显示一次    //耗时大户
             {
@@ -136,11 +140,11 @@ uint8_t nes_main(char *rom_file)
     if (res == 0)          //申请成功了.则运行游戏
     {
         //初始化nes 模拟器
-        init6502mem(0,                                     // exp_rom
-                    0,                                     // sram 由卡类型决定, 暂不支持
-                    ((uint8_t *)&rom_file[offset + 0x10]), // prg_rombank, 存储器大小 由卡类型决定
-                    neshreader->romnum);                   //初始化6502存储器镜像
-        reset6502();                                       //复位
+        init6502mem(0,                                                                                                    // exp_rom
+                    0,                                                                                                    // sram 由卡类型决定, 暂不支持
+                    ((uint8_t *)&rom_file[offset + 0x10]),                                                                // prg_rombank, 存储器大小 由卡类型决定
+                    neshreader->romnum);                                                                                  //初始化6502存储器镜像
+        reset6502();                                                                                                      //复位
         PPU_Init(((uint8_t *)&rom_file[offset + 0x10] + (neshreader->romnum * 0x4000)), (neshreader->romfeature & 0x01)); // PPU_初始化
         NES_JoyPadInit();
         NesFrameCycle(); //模拟器循环执行
@@ -154,13 +158,13 @@ uint8_t nes_main(char *rom_file)
 //    其他,错误代码.
 uint8_t nes_mem_creat(void)
 {
-    ram6502 = (uint8_t *)malloc(sizeof(uint8_t)*2048); //申请2K内存
+    ram6502 = (uint8_t *)malloc(sizeof(uint8_t) * 2048); //申请2K内存
     if (ram6502 == NULL)
-        return 1;                     //申请失败
-    NameTable = (uint8_t *)malloc(sizeof(uint8_t)*2048); //申请2K内存
+        return 1;                                          //申请失败
+    NameTable = (uint8_t *)malloc(sizeof(uint8_t) * 2048); //申请2K内存
     if (NameTable == NULL)
         return 2;
-    Buffer_scanline = (uint16_t *)malloc(sizeof(uint16_t)*(8 + 256 + 8));
+    Buffer_scanline = (uint16_t *)malloc(sizeof(uint16_t) * (8 + 256 + 8));
     if (Buffer_scanline == NULL)
         return 3;
     return 0;
